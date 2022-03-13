@@ -104,7 +104,7 @@
     二次提交（TwoPhaseCommitSinkFunction）：
     TwoPhaseCommitSinkFunction 实现了RichSinkFunction，CheckpointedFunction，CheckpointListener
 
-    beginTransaction()：开始一个事务，返回事务信息的句柄。
+    beginTransaction()：开始一个事务，返回事务信息的句柄。¬
     preCommit()：预提交（即提交请求）阶段的逻辑。
     commit()：正式提交阶段的逻辑。
     abort()：取消事务。
@@ -115,5 +115,6 @@
     3. 在进行checkpoint的同时，让下游sink开始 snapshotState()方法中调用 preCommit，没真正提交事物
     4. 然后判断是否结束，如果没有结束则调用 beginTransaction，开启下一个事务 （也是在 sink 的snapshotState 中）
     5. 完成Checkpoint后，所有的Subtask都会收到JobManager发来的NotifyCheckpointComplete消息， 在该方法中调用了最后真正的commit()方法完成事务型的提交，完成两阶段提交的过程
+
 
 ![图 5](../../images/6a09be23f4394994bf7b63b64882e3a1d8de9dd0ef27a43d7e877cd60ab967ff.png)  

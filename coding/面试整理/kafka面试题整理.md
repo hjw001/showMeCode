@@ -8,16 +8,13 @@
     容错性： 允许集群中的节点失败，某个节点宕机，Kafka 集群能够正常工作
     高并发： 支持数千个客户端同时读写
 
-
-
 ### Kafka 体系以及角色及其作用
 
 - Producer:生产者，发送消息的一方，将其投递到Kafka中
 - Consumer:消费者,连接到Kafka 上并接受不了消息
 - Broker:服务代理节点， broker 可以看作 一台Kafka 服务器，一个或多个 broker 组成了 Kafka 集群
 - Kafka 两个重要概念：主题（topic） 与 分区（Partition）
-    
-    
+
     Kafka以主题为单位进行归类，生产者负责将消息发送到特定的主题，而消费者负责订阅主题并进行消费，一个主题下可以细分多个分区，同一个主题下的不同分区消息是不同的，
     分区在存储层面可以看作一个可追加的日志文件，消息在被追加到分区日志文件时候都会分配一个特定的偏移量（offset）。offset是消息在分区中的唯一标识，Kafka通过
     offset 保证消息在分区内的顺序性，由于offset 并不跨越分区，因此Kafka 只保证单分区有序，而非主题有序
@@ -58,14 +55,8 @@ replica：Kafka 定义了 两类副本，leader replica、follower replica， fo
 
 ![图 7](../../../images/046a599bfe222992502bbeff9b046d6ac024b9cf7e9c220d1a41f30c05dbf450.png)  
 
-
-
-
-
 #### kafka 分区数设置
     kakfa 每个分区下都会维护 index,log，product 吞吐量为 20m/s，customer 为 60m/s，期望吞吐量为 100m/s 时，设置分区数为5
-
-
 
 #### kafka 数据重复与丢失处理
     Ack=0，相当于异步发送，消息发送完毕即 offset 增加，继续生产。 
@@ -94,4 +85,3 @@ replica：Kafka 定义了 两类副本，leader replica、follower replica， fo
         针对这种问题，严格的顺序消费还需要max.in.flight.requests.per.connection参数的支持。
         该参数指定了生产者在收到服务器响应之前可以发送多少个消息。它的值越高，就会占用越多的内存，同时也会提升吞吐量。把它设为1就可以保证消息是按照发送的顺序写入服务器的。
         此外，对于某些业务场景，设置max.in.flight.requests.per.connection=1会严重降低吞吐量，如果放弃使用这种同步重试机制，则可以考虑在消费端增加失败标记的记录，然后用定时任务轮询去重试这些失败的消息并做好监控报警
-#### 

@@ -27,7 +27,6 @@
 
 ![图 1](../../../images/9829fbab5281015933688d2d40c2ed0e259b2f817673db186466905cc9b35f34.png)  
 
-
 <br/>
 <br/>
 
@@ -196,5 +195,3 @@ sort shuffle：
 
     cache()调用的persist()，是使用默认存储级别的快捷设置方法
     cache()是persist()的简化方式，调用persist的无参版本，也就是调用persist(StorageLevel.MEMORY_ONLY)
-
-

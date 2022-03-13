@@ -113,3 +113,23 @@ map 通过 partitioner（默认：hash） 的组建，将相同的k 写入同一
 
     因为在yarn container这种模式下，map/reduce task是运行在Container之中的，所以上面提到的mapreduce.map(reduce).memory.mb大小都大于mapreduce.map(reduce).java.opts值的大小。
     mapreduce.{map|reduce}.java.opts能够通过Xmx设置JVM最大的heap的使用，一般设置为0.75倍的memory.mb，因为需要为java code等预留些空间
+
+## MapReduce 执行流程
+
+1.1. Client：编写mapreduce程序，配置作业，提交作业的客户端 ；
+1.2. ResourceManager：集群中的资源分配管理 ；
+1.3. NodeManager：启动和监管各自节点上的计算资源 ；
+1.4. ApplicationMaster：每个程序对应一个AM，负责程序的任务调度，本身也是运行在NM的Container中 ；
+1.5. HDFS：分布式文件系统，保存作业的数据、配置信息等等。
+
+1、客户端编RM发起提交请求，RM为提交的作业生产JOB ID，此时 JOB 状态为：NEW；
+2、然后客户端继续向RM提交 JOB 详细信息包括(分片、文件系统路径等)，此时 JOB的状态为：SUBMIT
+3、RM 检查 MR 提交程序所属 queue 是否有足够的资源，此时的状态为：accept
+4、如果 有足够的资源，RM 会为 AM 分配contianer，并运行AM，AM 成功启动后此时状态为：RUNNING
+5、然后 AM 向 RM 申请 maptask 资源运行 MR 程序的 map阶段
+6、map 调用 inputFormat 的接口，以kv的形式从文件系统读取数据，map 阶段主要是对 文件进行分片并读入数据
+7、map阶段完成以后，调用outputCollector 接口 向环形缓冲区写入数据
+8、环形缓冲区默认大小（100M 建议优化成 1.5G),当容量达到 80%时，进行一个溢写，写的时候会根据 partition（默认：HashPartition）的规则，写入分区并且做归并排序，此时可以选择做 combiner 操作，做局部汇总 减少网络IO,然后压缩输出到 本地磁盘，这样 Map端就结束了
+9、Map 结束后，AM 继续向 RM 申请 continer 运行 reducetask
+10、Reduce 会开启几个复制线程 默认5个 （建议值20） 去复制map结果中对应的partition的数据，复制时候reduce还会进行排序操作和合并文件操作，这些操作完了就会按照程序 reduce计算了。
+11、JOB顺利 完成以后，任务的状态为：FINALSHED

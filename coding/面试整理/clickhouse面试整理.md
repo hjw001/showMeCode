@@ -1,9 +1,12 @@
 #clickhouse 总结
 
+### replacingMergeTree 引擎
 
-
-
-###replacingMergeTree 引擎
+    特点：
+        1、更新：
+        通过ORDER BY 主键，合并分区时数据重复会被排除
+        只有在触发合并之后，才能触发特殊逻辑。以去重为例，在没有合并的时候，还是会出现重复数据。
+        只对同一分区内的数据有效。以去重为例，只有属于相同分区的数据才能去重，跨越不同分区的重复数据不能去重。
 
 ### 参考 https://cloud.tencent.com/developer/article/1680925
 
@@ -17,7 +20,18 @@
     第二，只有在触发合并之后，才能触发特殊逻辑。以去重为例，在没有合并的时候，还是会出现重复数据。
     第三，只对同一分区内的数据有效。以去重为例，只有属于相同分区的数据才能去重，跨越不同分区的重复数据不能去重。
 
+    当需要查询出最新数据时可以通过：
+
+    1、强制触发新写入分区的合并动作
+    OPTIMIZE TABLE TABLENAME PARTITION part FINAL
+
+    2、使用 主键进行group by 然后通过argMax针对插入create_time取多条数据中时间最大的一条，argMax(score, create_time) AS score
+
+
+
 
 #### 2、更新
     使用 sign 标识数据是否删除 1 、-1
+
+    分数数据折叠不是实时的
 

@@ -57,7 +57,7 @@ https://developer.aliyun.com/article/682873?spm=a2c6h.13262185.0.0.3fe58a3bDWnVz
 
 ### TimestampAssignerSupplier （注册水印）
 
-    调用 extractTimestamp 将 eventTime 
+    调用 extractTimestamp 将 eventTime 注册成水印
 
 ## waterMark 触发 window 计算
 
